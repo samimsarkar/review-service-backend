@@ -72,12 +72,12 @@ async function run() {
             res.send(result);
         })
 
-        app.get('/get-review/:id', async (req, res) => {
-            const id = req.params.id;
-            const query = { _id: ObjectId(id) };
-            const result = await ReviewCollection.findOne(query);
-            res.send(result);
-        })
+        // app.get('/get-review/:id', async (req, res) => {
+        //     const id = req.params.id;
+        //     const query = { _id: ObjectId(id) };
+        //     const result = await ReviewCollection.findOne(query);
+        //     res.send(result);
+        // })
 
         app.get('/myreviews/:uid', verifyJWT, async (req, res) => {
             const uid = req.params.uid;
