@@ -11,18 +11,18 @@ app.use(express.json());
 
 
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-const uri = `mongodb+srv://dbuser:${process.env.DB_PASSWORD}@cluster0.mn9baty.mongodb.net/?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://dbuser1:${process.env.DB_PASSWORD}@cluster0.3m6n3pz.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 function verifyJWT(req, res, next) {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
-        res.status(401).send({ message: 'unauthorized access' })
+        return res.status(401).send({ message: 'unauthorized access' })
     }
     const token = authHeader.split(' ')[1];
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
         if (err) {
-            res.status(401).send({ message: 'unauthorized access' })
+            return res.status(401).send({ message: 'unauthorized access' })
         }
         req.decoded = decoded;
         next()
@@ -31,8 +31,8 @@ function verifyJWT(req, res, next) {
 
 async function run() {
     try {
-        const servicesCollection = client.db('ImmigrationVISA').collection('services');
-        const ReviewCollection = client.db('ImmigrationVISA').collection('reviews');
+        const servicesCollection = client.db('TravelAgency').collection('services');
+        const ReviewCollection = client.db('TravelAgency').collection('reviews');
 
         app.get('/services', async (req, res) => {
             const date = new Date();
@@ -72,18 +72,18 @@ async function run() {
             res.send(result);
         })
 
-        // app.get('/get-review/:id', async (req, res) => {
-        //     const id = req.params.id;
-        //     const query = { _id: ObjectId(id) };
-        //     const result = await ReviewCollection.findOne(query);
-        //     res.send(result);
-        // })
+        app.get('/get-review/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await ReviewCollection.findOne(query);
+            res.send(result);
+        })
 
         app.get('/myreviews/:uid', verifyJWT, async (req, res) => {
             const uid = req.params.uid;
             const decoded = req.decoded;
             if (decoded?.email !== req?.query?.email) {
-                res.status(403).send({ message: 'unauthorized access' })
+                return res.status(401).send({ message: 'unauthorized access' })
             }
             const query = { uid }
             const sort = { timestamp: -1 }
